@@ -235,6 +235,31 @@
                 </div>
             </div>
         </div>
+        <!-- Docker -->
+        <div class="info-card mb-4">
+            <div class="card-content">
+                <h3 id="docker" class="card-title">Docker</h3>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="docker-enabled" name="docker_enabled" disabled>
+                    <label class="form-check-label" for="docker-enabled" data-bs-toggle="tooltip"
+                        data-bs-placement="right"
+                        title="Please configure Docker first before enabling it.">Enabled</label>
+                </div>
+                <div class="mb-3">
+                    <label for="docker-host-ip" class="form-label">Host IP</label>
+                    <input type="text" class="form-control" id="docker-host-ip" name="docker_host_ip"
+                        placeholder="http://localhost:0000">
+                </div>
+                <div class="mb-3">
+                    <label for="docker-socket-url" class="form-label">Socket URL</label>
+                    <input type="text" class="form-control" id="docker-socket-url" name="docker_socket_url"
+                        placeholder="http://localhost:0000">
+                </div>
+                <button type="button" class="btn btn-primary" id="save-docker-settings">Save Docker
+                    Settings</button>
+                <button type="button" class="btn btn-secondary" id="test-docker-connection">Test Connection</button>
+            </div>
+        </div>
         <!-- Portainer -->
         <div class="info-card mb-4">
             <div class="card-content">

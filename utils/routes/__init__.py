@@ -8,6 +8,7 @@ from .ports import ports_bp
 from .settings import settings_bp
 
 # Import Plugins Blueprints
+from .plugins.docker import docker_bp
 from .plugins.portainer import portainer_bp
 
 # Register Blueprints
@@ -18,4 +19,5 @@ routes_bp.register_blueprint(ports_bp)
 routes_bp.register_blueprint(settings_bp)
 
 # Register Plugins Blueprints
+routes_bp.register_blueprint(docker_bp)
 routes_bp.register_blueprint(portainer_bp)

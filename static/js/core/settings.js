@@ -7,6 +7,7 @@
  */
 
 import { exportEntries } from '../api/ajax.js';
+import { initDockerSettings } from '../plugins/docker.js';
 import { initPortainerSettings } from '../plugins/portainer.js';
 
 let cssEditor;
@@ -21,8 +22,9 @@ $(document).ready(function () {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
 
-    // Initialize Portainer settings
+    // Initialize Plugin settings
     initPortainerSettings();
+    initDockerSettings();
 
     /**
      * Initializes the CodeMirror editor for custom CSS editing.
