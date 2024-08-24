@@ -162,3 +162,4 @@ demo/.DS_Store
 demo/gif/.DS_Store
 .DS_Store
 instance/
+/migrations
