@@ -43,6 +43,10 @@
     --box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
+.hidden {
+    display: none;
+}
+
 /* General Styles */
 body {
     font-family: var(--font-family);

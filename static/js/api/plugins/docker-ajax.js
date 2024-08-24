@@ -23,6 +23,37 @@ function showNotification(message, type = 'success') {
 }
 
 /**
+ * Checks if the Docker plugin is enabled and updates the tab visibility.
+ */
+export function updateDockerTabVisibility() {
+    $.ajax({
+        url: '/get_docker_config',
+        method: 'GET',
+        success: function (response) {
+            if (response.success && response.config) {
+                if (response.config.enabled) {
+                    $('.docker-tab').removeClass('hidden');
+                } else {
+                    $('.docker-tab').addClass('hidden');
+                }
+                updateConnectionStatus(response.config.enabled);
+            } else {
+                console.error('Error fetching Docker config:', response.message);
+                $('.docker-tab').addClass('hidden');
+                updateConnectionStatus(false);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log('Error fetching Docker config:', error);
+
+            console.error('Error checking Docker status:', status, error);
+            $('.docker-tab').addClass('hidden');
+            updateConnectionStatus(false);
+        }
+    });
+}
+
+/**
  * Saves the Docker configuration to the server.
  *
  * @param {string} hostIP - The Docker host IP.
@@ -35,6 +66,38 @@ export function saveDockerConfig(hostIP, socketURL, enabled) {
         method: 'POST',
         data: JSON.stringify({ hostIP: hostIP, socketURL: socketURL, enabled: enabled }),
         contentType: 'application/json',
+        success: function (response) {
+            if (response.success) {
+                showNotification('Docker configuration saved successfully', 'success');
+                updateConnectionStatus(true);
+                updateDockerTabVisibility();
+            } else {
+                showNotification('Error saving Docker configuration: ' + response.message, 'error');
+                updateConnectionStatus(false);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error saving Docker configuration:', error);
+            showNotification('Error saving Docker configuration: ' + error, 'error');
+            updateConnectionStatus(false);
+        }
+    });
+}
+
+/**
+ * Saves the Docker settings to the server.
+ *
+ * @param {string} dockerIP - The Docker IP address.
+ * @param {string} dockerURL - The Docker URL.
+ */
+export function saveDockerSettings(dockerIP, dockerURL) {
+    $.ajax({
+        url: '/docker_settings',
+        method: 'POST',
+        data: {
+            docker_ip: dockerIP,
+            docker_url: dockerURL
+        },
         success: function (response) {
             if (response.success) {
                 showNotification('Docker settings saved successfully', 'success');

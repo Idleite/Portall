@@ -1,6 +1,6 @@
 // static/js/plugins/docker.js
 
-import { saveDockerConfig, testDockerConnection, fetchDockerConfig } from '../api/plugins/docker-ajax.js';
+import { saveDockerConfig, saveDockerSettings, testDockerConnection, fetchDockerConfig, updateDockerTabVisibility } from '../api/plugins/docker-ajax.js';
 import { logPluginsConfig } from '../utils/logger.js';
 
 let isInitialized = false;
@@ -89,7 +89,11 @@ function handleSaveDockerSettings() {
         return;
     }
 
+    // Save Docker configuration
     saveDockerConfig(hostIP, socketURL, enabled);
+
+    // Save Docker settings
+    saveDockerSettings(hostIP, socketURL);
 }
 
 /**
@@ -195,3 +199,5 @@ function updateEnabledPlugins() {
         handleDockerEnabledChange();
     });
 }
+
+export { updateDockerTabVisibility };

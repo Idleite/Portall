@@ -37,8 +37,8 @@
     </li>
 
     <!-- Docker Socket -->
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="Docker-tab" data-bs-toggle="tab" data-bs-target="#docker" type="button" role="tab"
+    <li class="nav-item docker-tab hidden" role="presentation">
+        <button class="nav-link" id="docker-tab" data-bs-toggle="tab" data-bs-target="#docker" type="button" role="tab"
             aria-controls="Docker" aria-selected="false">Docker</button>
     </li>
 
@@ -190,18 +190,6 @@
                 {% endfor %}
             </tbody>
         </table>
-
-        <form action="/docker_settings" id="docker-form">
-            <div class="mb-3">
-                <label for="docker-ip" class="form-label">Docker Host IP</label>
-                <input type="text" class="form-control" id="docker-ip" name="docker_ip">
-            </div>
-            <div class="mb-3">
-                <label for="docker-url" class="form-label">Docker Socket URL</label>
-                <input type="text" class="form-control" id="docker-url" name="docker_url">
-            </div>
-            <button type="submit" class="btn btn-primary">Save</button>
-        </form>
     </div>
 
     <!-- Data Management -->

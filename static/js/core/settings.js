@@ -7,7 +7,7 @@
  */
 
 import { exportEntries } from '../api/ajax.js';
-import { initDockerSettings } from '../plugins/docker.js';
+import { initDockerSettings, updateDockerTabVisibility } from '../plugins/docker.js';
 import { initPortainerSettings } from '../plugins/portainer.js';
 
 let cssEditor;
@@ -25,6 +25,7 @@ $(document).ready(function () {
     // Initialize Plugin settings
     initPortainerSettings();
     initDockerSettings();
+    updateDockerTabVisibility();
 
     /**
      * Initializes the CodeMirror editor for custom CSS editing.
