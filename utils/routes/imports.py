@@ -10,7 +10,6 @@ from flask import jsonify                       # For returning JSON responses
 from flask import render_template               # For rendering HTML templates
 from flask import request                       # For handling HTTP requests
 from flask import session                       # For storing session data
-import docker              # For accessing Docker socket
 
 # Local Imports
 from utils.database import db, Port             # For accessing the database models
@@ -49,8 +48,6 @@ def import_data():
             imported_data = import_json(file_content)
         elif import_type == 'Docker-Compose':
             imported_data = import_docker_compose(file_content)
-        elif import_type == "Docker-Socket":
-            imported_data = import_docker_socket()
         else:
             return jsonify({'success': False, 'message': 'Unsupported import type'}), 400
 
@@ -143,68 +140,6 @@ def import_caddyfile(content):
 
     return entries
 
-def parse_docker_compose(content):
-    """
-    Parse Docker Compose file content and extract service information.
-
-    Args:
-        content (str): The content of the Docker Compose file
-
-    Returns:
-        dict: A dictionary with service names as keys and lists of (port, protocol) tuples as values
-    """
-    result = {}
-    current_service = None
-    current_image = None
-    in_services = False
-    in_ports = False
-    indent_level = 0
-
-    def add_port(image, port, protocol):
-        image_parts = image.split('/')
-        image_name = image_parts[-1].split(':')[0]
-        if image_name not in result:
-            result[image_name] = []
-        result[image_name].append((port, protocol))
-
-    lines = content.split('\n')
-    for line in lines:
-        original_line = line
-        line = line.strip()
-        current_indent = len(original_line) - len(original_line.lstrip())
-
-        if line.startswith('services:'):
-            in_services = True
-            indent_level = current_indent
-            continue
-
-        if in_services and current_indent == indent_level + 2:
-            if ':' in line and not line.startswith('-'):
-                current_service = line.split(':')[0].strip()
-                current_image = None
-                in_ports = False
-
-        if in_services and current_indent == indent_level + 4:
-            if line.startswith('image:'):
-                current_image = line.split('image:')[1].strip()
-            if line.startswith('ports:'):
-                in_ports = True
-                continue
-
-        if in_ports and current_indent == indent_level + 6:
-            if line.startswith('-'):
-                port_mapping = line.split('-')[1].strip().strip('"').strip("'")
-                if ':' in port_mapping:
-                    host_port = port_mapping.split(':')[0]
-                    protocol = 'UDP' if '/udp' in port_mapping else 'TCP'
-                    host_port = host_port.split('/')[0]  # Remove any protocol specification from the port
-                    if current_image:
-                        add_port(current_image, host_port, protocol)
-        elif in_ports and current_indent <= indent_level + 4:
-            in_ports = False
-
-    return result
-
 def import_docker_compose(content):
     """
     Parse a Docker Compose file and extract port information.
@@ -272,52 +207,70 @@ def import_json(content):
         return entries
     except json.JSONDecodeError:
         raise ValueError("Invalid JSON format")
-def import_docker_socket():
-    """
-    Parse a Caddyfile and extract port information.
-
-    This function processes a Caddyfile content, extracting domain names and
-    their associated reverse proxy configurations.
-
-    Args:
-        content (str): The content of the Caddyfile
-
-
-    Returns:
-        list: A list of dictionaries containing extracted port information
-    """
-    entries = []
-    client = docker.from_env()
-    for container in client.containers.list():
-        for key in container.ports:
-            if container.ports[key] == None:
-                continue
-            else:
-              try:
-                  ip = str(container.labels["com.portall.ip"])
-              except:
-                  ip = "127.0.0.1"
-              try:
-                  description = str(container.labels["com.portall.description"])
-              except:
-                  description = str(container.name)
-              try:
-                  nickname = str(container.labels["com.portall.nickname"])
-              except:
-                  nickname = None
-              entries.append({
-                  'ip': ip,
-                  'nickname': nickname,
-                  'port': int(container.ports[key][0]['HostPort']),
-                  'description': description,
-                  'port_protocol':  key[-3:] 
-              })
-
-
-    return entries
-  
 
 # Import Helpers
+
+def parse_docker_compose(content):
+    """
+    Parse Docker Compose file content and extract service information.
+
+    Args:
+        content (str): The content of the Docker Compose file
+
+    Returns:
+        dict: A dictionary with service names as keys and lists of (port, protocol) tuples as values
+    """
+    result = {}
+    current_service = None
+    current_image = None
+    in_services = False
+    in_ports = False
+    indent_level = 0
+
+    def add_port(image, port, protocol):
+        image_parts = image.split('/')
+        image_name = image_parts[-1].split(':')[0]
+        if image_name not in result:
+            result[image_name] = []
+        result[image_name].append((port, protocol))
+
+    lines = content.split('\n')
+    for line in lines:
+        original_line = line
+        line = line.strip()
+        current_indent = len(original_line) - len(original_line.lstrip())
+
+        if line.startswith('services:'):
+            in_services = True
+            indent_level = current_indent
+            continue
+
+        if in_services and current_indent == indent_level + 2:
+            if ':' in line and not line.startswith('-'):
+                current_service = line.split(':')[0].strip()
+                current_image = None
+                in_ports = False
+
+        if in_services and current_indent == indent_level + 4:
+            if line.startswith('image:'):
+                current_image = line.split('image:')[1].strip()
+            if line.startswith('ports:'):
+                in_ports = True
+                continue
+
+        if in_ports and current_indent == indent_level + 6:
+            if line.startswith('-'):
+                port_mapping = line.split('-')[1].strip().strip('"').strip("'")
+                if ':' in port_mapping:
+                    host_port = port_mapping.split(':')[0]
+                    protocol = 'UDP' if '/udp' in port_mapping else 'TCP'
+                    host_port = host_port.split('/')[0]  # Remove any protocol specification from the port
+                    if current_image:
+                        add_port(current_image, host_port, protocol)
+        elif in_ports and current_indent <= indent_level + 4:
+            in_ports = False
+
+    return result
 
 def parse_port_and_protocol(port_value):
     """
@@ -353,7 +306,6 @@ def parse_port_and_protocol(port_value):
         after_colon = port_value[last_colon_index + 1:]
         number_match = re.search(r'(\d+)', after_colon)
         if number_match:
-
             return int(number_match.group(1)), protocol
 
     # If no number found after the last colon, check for other patterns
