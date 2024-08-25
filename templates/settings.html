@@ -236,99 +236,108 @@
                 <div class="mb-3">
                     <label for="docker-host-ip" class="form-label">Host IP</label>
                     <input type="text" class="form-control" id="docker-host-ip" name="docker_host_ip"
-                        placeholder="http://localhost:0000">
+                        placeholder="'localhost' or remote host IP">
                 </div>
                 <div class="mb-3">
                     <label for="docker-socket-url" class="form-label">Socket URL</label>
-                    <input type="text" class="form-control" id="docker-socket-url" name="docker_socket_url"
-                        placeholder="http://localhost:0000">
+                    <div class="mb-3">
+                        <p class="form-label">
+                            Linux:<br>
+                            unix:///var/run/docker.sock<br><br>
+                            Windows:<br>
+                            npipe:////./pipe/docker_engine
+                        </p>
+                        <input type="text" class="form-control" id="docker-socket-url" name="docker_socket_url"
+                            placeholder="unix:///var/run/docker.sock">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="save-docker-settings">Save Docker
+                        Settings</button>
+                    <button type="button" class="btn btn-secondary" id="test-docker-connection">Test Connection</button>
+                    <button id="discover-docker-ports" class="btn btn-info">Discover Docker Ports</button>
                 </div>
-                <button type="button" class="btn btn-primary" id="save-docker-settings">Save Docker
-                    Settings</button>
-                <button type="button" class="btn btn-secondary" id="test-docker-connection">Test Connection</button>
+            </div>
+            <!-- Portainer -->
+            <div class="info-card mb-4">
+                <div class="card-content">
+                    <h3 id="portainer" class="card-title">Portainer</h3>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="portainer-enabled" name="portainer_enabled"
+                            disabled>
+                        <label class="form-check-label" for="portainer-enabled" data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="Please configure Portainer first before enabling it.">Enabled</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="portainer-url" class="form-label">URL</label>
+                        <input type="text" class="form-control" id="portainer-url" name="portainer_url"
+                            placeholder="http://localhost:9443">
+                    </div>
+                    <div class="mb-3">
+                        <label for="portainer-token" class="form-label">Access Token</label>
+                        <input type="password" class="form-control" id="portainer-token" name="portainer_token"
+                            placeholder="ptr_cBqeD5bb/25LxELr155bmA9tdknSxTwwBCr9fQWyGc=">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="save-portainer-settings">Save Portainer
+                        Settings</button>
+                    <button type="button" class="btn btn-secondary" id="test-portainer-connection">Test
+                        Connection</button>
+                </div>
             </div>
         </div>
-        <!-- Portainer -->
-        <div class="info-card mb-4">
-            <div class="card-content">
-                <h3 id="portainer" class="card-title">Portainer</h3>
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="portainer-enabled" name="portainer_enabled"
-                        disabled>
-                    <label class="form-check-label" for="portainer-enabled" data-bs-toggle="tooltip"
-                        data-bs-placement="right"
-                        title="Please configure Portainer first before enabling it.">Enabled</label>
+
+        <!-- About -->
+        <div class="tab-pane fade" id="about" role="tabpanel" aria-labelledby="about-tab">
+            <h2 class="section-title mb-4">About Portall</h2>
+
+            <div class="info-card version-info mb-4">
+                <div class="card-content">
+                    <h3 class="card-title">Version Info</h3>
+                    <ul class="list-unstyled">
+                        <li><span class="info-label">Version:</span> {{ version }}</li>
+                        <li><span class="info-label">Released:</span> July 14, 2024</li>
+                        <li><span class="info-label">Github:</span> <a href="https://github.com/need4swede/Portall"
+                                target="_blank">Portall Repository</a></li>
+                    </ul>
                 </div>
-                <div class="mb-3">
-                    <label for="portainer-url" class="form-label">URL</label>
-                    <input type="text" class="form-control" id="portainer-url" name="portainer_url"
-                        placeholder="http://localhost:9443">
+            </div>
+
+            <div class="info-card planned-features mb-4">
+                <div class="card-content">
+                    <h3 class="card-title">Planned Features</h3>
+                    <div id="planned-features-content" class="markdown-content"></div>
                 </div>
-                <div class="mb-3">
-                    <label for="portainer-token" class="form-label">Access Token</label>
-                    <input type="password" class="form-control" id="portainer-token" name="portainer_token"
-                        placeholder="ptr_cBqeD5bb/25LxELr155bmA9tdknSxTwwBCr9fQWyGc=">
+            </div>
+
+            <div class="info-card changelog">
+                <div class="card-content">
+                    <h3 class="card-title">Changelog</h3>
+                    <div id="changelog-content" class="markdown-content"></div>
                 </div>
-                <button type="button" class="btn btn-primary" id="save-portainer-settings">Save Portainer
-                    Settings</button>
-                <button type="button" class="btn btn-secondary" id="test-portainer-connection">Test Connection</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirm Purge</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to purge all entries? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirm-purge">Purge</button>
+                </div>
             </div>
         </div>
     </div>
+    {% endblock %}
 
-    <!-- About -->
-    <div class="tab-pane fade" id="about" role="tabpanel" aria-labelledby="about-tab">
-        <h2 class="section-title mb-4">About Portall</h2>
-
-        <div class="info-card version-info mb-4">
-            <div class="card-content">
-                <h3 class="card-title">Version Info</h3>
-                <ul class="list-unstyled">
-                    <li><span class="info-label">Version:</span> {{ version }}</li>
-                    <li><span class="info-label">Released:</span> July 14, 2024</li>
-                    <li><span class="info-label">Github:</span> <a href="https://github.com/need4swede/Portall"
-                            target="_blank">Portall Repository</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="info-card planned-features mb-4">
-            <div class="card-content">
-                <h3 class="card-title">Planned Features</h3>
-                <div id="planned-features-content" class="markdown-content"></div>
-            </div>
-        </div>
-
-        <div class="info-card changelog">
-            <div class="card-content">
-                <h3 class="card-title">Changelog</h3>
-                <div id="changelog-content" class="markdown-content"></div>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<!-- Confirmation Modal -->
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmModalLabel">Confirm Purge</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to purge all entries? This action cannot be undone.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirm-purge">Purge</button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script type="module" src="{{ url_for('static', filename='js/core/settings.js') }}"></script>
-{% endblock %}
+    {% block scripts %}
+    <script type="module" src="{{ url_for('static', filename='js/core/settings.js') }}"></script>
+    {% endblock %}

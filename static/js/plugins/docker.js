@@ -1,6 +1,6 @@
 // static/js/plugins/docker.js
 
-import { saveDockerConfig, saveDockerSettings, testDockerConnection, fetchDockerConfig, updateDockerTabVisibility } from '../api/plugins/docker-ajax.js';
+import { saveDockerConfig, saveDockerSettings, testDockerConnection, fetchDockerConfig, updateDockerTabVisibility, discoverDockerPorts } from '../api/plugins/docker-ajax.js';
 import { logPluginsConfig } from '../utils/logger.js';
 
 let isInitialized = false;
@@ -16,6 +16,7 @@ export function initDockerSettings() {
     const dockerHostIp = document.getElementById('docker-host-ip');
     const dockerSocketUrl = document.getElementById('docker-socket-url');
     const dockerEnabledButton = document.getElementById('docker-enabled');
+    const discoverPortsButton = document.getElementById('discover-docker-ports');
 
     if (saveButton) {
         saveButton.addEventListener('click', handleSaveDockerSettings);
@@ -38,6 +39,12 @@ export function initDockerSettings() {
         dockerEnabledButton.addEventListener('change', handleDockerEnabledChange);
     } else {
         console.error('Docker enabled checkbox not found');
+    }
+
+    if (discoverPortsButton) {
+        discoverPortsButton.addEventListener('click', handleDiscoverDockerPorts);
+    } else {
+        console.error('Discover ports button not found');
     }
 
     // Load saved configuration
@@ -189,7 +196,6 @@ function updateEnabledPlugins() {
         logPluginsConfig("docker", { hostIP: hostIP, socketURL: socketURL });
     }
 
-    // Add event listener for the disable button
     $('.disable-plugin').off('click').on('click', function () {
         const pluginId = $(this).data('plugin');
         const checkbox = $(`#${pluginId}`);
@@ -198,6 +204,14 @@ function updateEnabledPlugins() {
         updateEnabledPlugins();
         handleDockerEnabledChange();
     });
+}
+
+/**
+ * Handle discovering Docker ports.
+ * Calls the discoverDockerPorts function when the discover ports button is clicked.
+ */
+function handleDiscoverDockerPorts() {
+    discoverDockerPorts();
 }
 
 export { updateDockerTabVisibility };
