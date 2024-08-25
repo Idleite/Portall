@@ -1,6 +1,6 @@
 // static/js/plugins/docker.js
 
-import { saveDockerConfig, saveDockerSettings, testDockerConnection, fetchDockerConfig, updateDockerTabVisibility, discoverDockerPorts } from '../api/plugins/docker-ajax.js';
+import { saveDockerConfig, testDockerConnection, fetchDockerConfig, updateDockerTabVisibility, discoverDockerPorts } from '../api/plugins/docker-ajax.js';
 import { logPluginsConfig } from '../utils/logger.js';
 
 let isInitialized = false;
@@ -50,11 +50,10 @@ export function initDockerSettings() {
     // Load saved configuration
     fetchDockerConfig((config) => {
         if (config) {
-            dockerHostIp.value = config.hostIP || '';
-            dockerSocketUrl.value = config.socketURL || '';
-            dockerEnabledButton.checked = config.enabled;
+            document.getElementById('docker-host-ip').value = config.hostIP || '';
+            document.getElementById('docker-socket-url').value = config.socketURL || '';
+            document.getElementById('docker-enabled').checked = config.enabled;
             checkDockerFields();
-            updateEnabledPlugins();
             if (config.enabled) {
                 logPluginsConfig("docker", { hostIP: config.hostIP, socketURL: config.socketURL });
             }
@@ -135,7 +134,7 @@ export function updateConnectionStatus(isConnected) {
 /**
  * Handle changes to the Docker enabled checkbox.
  */
-function handleDockerEnabledChange() {
+export function handleDockerEnabledChange() {
     const isEnabled = document.getElementById('docker-enabled').checked;
     const hostIP = document.getElementById('docker-host-ip').value;
     const socketURL = document.getElementById('docker-socket-url').value;
@@ -143,12 +142,13 @@ function handleDockerEnabledChange() {
     if (isEnabled && (!hostIP || !socketURL)) {
         showNotification('Please enter both Host IP and Socket URL before enabling Docker', 'error');
         document.getElementById('docker-enabled').checked = false;
-        updateEnabledPlugins();
         return;
     }
 
     saveDockerConfig(hostIP, socketURL, isEnabled);
-    updateEnabledPlugins();
+    if (isEnabled) {
+        logPluginsConfig("docker", { hostIP, socketURL });
+    }
 }
 
 /**
@@ -214,4 +214,4 @@ function handleDiscoverDockerPorts() {
     discoverDockerPorts();
 }
 
-export { updateDockerTabVisibility };
+export { saveDockerConfig, updateDockerTabVisibility };

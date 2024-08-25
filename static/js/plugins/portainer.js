@@ -41,11 +41,10 @@ export function initPortainerSettings() {
     // Load saved configuration
     fetchPortainerConfig((config) => {
         if (config) {
-            portainerUrl.value = config.url || '';
-            portainerToken.value = config.token || '';
-            portainerEnabled.checked = config.enabled;
+            document.getElementById('portainer-url').value = config.url || '';
+            document.getElementById('portainer-token').value = config.token || '';
+            document.getElementById('portainer-enabled').checked = config.enabled;
             checkPortainerFields();
-            updateEnabledPlugins();
             if (config.enabled) {
                 logPluginsConfig("portainer", { url: config.url, token: config.token });
             }
@@ -122,7 +121,7 @@ export function updateConnectionStatus(isConnected) {
 /**
  * Handle changes to the Portainer enabled checkbox.
  */
-function handlePortainerEnabledChange() {
+export function handlePortainerEnabledChange() {
     const isEnabled = document.getElementById('portainer-enabled').checked;
     const url = document.getElementById('portainer-url').value;
     const token = document.getElementById('portainer-token').value;
@@ -130,12 +129,13 @@ function handlePortainerEnabledChange() {
     if (isEnabled && (!url || !token)) {
         showNotification('Please enter both URL and token before enabling Portainer', 'error');
         document.getElementById('portainer-enabled').checked = false;
-        updateEnabledPlugins();
         return;
     }
 
     savePortainerConfig(url, token, isEnabled);
-    updateEnabledPlugins();
+    if (isEnabled) {
+        logPluginsConfig("portainer", { url, token });
+    }
 }
 
 /**
@@ -193,3 +193,5 @@ function updateEnabledPlugins() {
         handlePortainerEnabledChange();
     });
 }
+
+export { savePortainerConfig };

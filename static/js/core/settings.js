@@ -7,8 +7,9 @@
  */
 
 import { exportEntries } from '../api/ajax.js';
-import { initDockerSettings, updateDockerTabVisibility } from '../plugins/docker.js';
-import { initPortainerSettings } from '../plugins/portainer.js';
+import { initDockerSettings, saveDockerConfig } from '../plugins/docker.js';
+import { initPortainerSettings, savePortainerConfig } from '../plugins/portainer.js';
+import { logPluginsConfig } from '../utils/logger.js';
 
 let cssEditor;
 
@@ -25,7 +26,72 @@ $(document).ready(function () {
     // Initialize Plugin settings
     initPortainerSettings();
     initDockerSettings();
-    updateDockerTabVisibility();
+
+    function updateEnabledPlugins() {
+        const $enabledPlugins = $('#enabled-plugins');
+        $enabledPlugins.empty(); // Clear existing entries
+
+        const plugins = [
+            {
+                id: 'docker-enabled',
+                name: 'Docker',
+                description: 'Connects Portall to your Docker instance',
+                saveConfig: saveDockerConfig,
+                getConfig: () => ({
+                    hostIP: $('#docker-host-ip').val(),
+                    socketURL: $('#docker-socket-url').val()
+                })
+            },
+            {
+                id: 'portainer-enabled',
+                name: 'Portainer',
+                description: 'Connects Portall to your Portainer instance',
+                saveConfig: savePortainerConfig,
+                getConfig: () => ({
+                    url: $('#portainer-url').val(),
+                    token: $('#portainer-token').val()
+                })
+            }
+        ];
+
+        plugins.forEach(plugin => {
+            const $checkbox = $(`#${plugin.id}`);
+            $checkbox.off('change').on('change', function () {
+                const isEnabled = $(this).is(':checked');
+                const config = plugin.getConfig();
+
+                if (isEnabled && Object.values(config).some(value => !value)) {
+                    showNotification(`Please enter all required fields for ${plugin.name} before enabling it`, 'error');
+                    $(this).prop('checked', false);
+                } else {
+                    plugin.saveConfig(...Object.values(config), isEnabled);
+                    if (isEnabled) {
+                        logPluginsConfig(plugin.name.toLowerCase(), config);
+                    }
+                }
+                updateEnabledPlugins();
+            });
+
+            if ($checkbox.is(':checked')) {
+                $enabledPlugins.append(`
+                    <div class="enabled-plugin">
+                        <div class="plugin-info">
+                            <span class="plugin-name">${plugin.name}</span>: <span class="plugin-description">${plugin.description}</span>
+                        </div>
+                        <button class="btn btn-sm btn-danger disable-plugin" data-plugin="${plugin.id}">Disable</button>
+                    </div>
+                `);
+            }
+        });
+
+        $('.disable-plugin').off('click').on('click', function () {
+            const pluginId = $(this).data('plugin');
+            $(`#${pluginId}`).prop('checked', false).trigger('change');
+        });
+    }
+
+    // Call updateEnabledPlugins on page load
+    updateEnabledPlugins();
 
     /**
      * Initializes the CodeMirror editor for custom CSS editing.
