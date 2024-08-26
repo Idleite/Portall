@@ -1,4 +1,4 @@
-// js/api/ajax.js
+// js/api/ports-ajax.js
 
 import { showNotification } from '../ui/helpers.js';
 import { cancelDrop } from '../utils/dragDropUtils.js';
@@ -351,3 +351,20 @@ export function updatePortOrder(ip, portOrder) {
         }
     });
 }
+
+export function purgeEntries(confirmModalElement) {
+    $.ajax({
+        url: '/purge_entries',
+        method: 'POST',
+        success: function (response) {
+            console.log('Entries purged successfully:', response);
+            showNotification(response.message);
+            bootstrap.Modal.getInstance(confirmModalElement).hide();
+        },
+        error: function (xhr, status, error) {
+            console.error('Error purging entries:', status, error);
+            showNotification('Error purging entries: ' + (xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred'), 'error');
+        }
+    });
+}
+

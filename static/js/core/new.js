@@ -7,7 +7,7 @@
  */
 
 import { showNotification } from '../ui/helpers.js';
-import { generatePort } from '../api/ajax.js';
+import { generatePort } from '../api/ports-ajax.js';
 
 $(document).ready(function () {
     console.log('Document ready');
