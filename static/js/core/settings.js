@@ -146,10 +146,30 @@ $(document).ready(function () {
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
-        $('#notification-area').html(notification);
+
+        // Remove any existing alerts
+        const existingAlerts = document.querySelectorAll('#notification-area .alert');
+        existingAlerts.forEach(alert => {
+            if (bootstrap.Alert.getInstance(alert)) {
+                bootstrap.Alert.getInstance(alert).dispose();
+            }
+        });
+
+        // Add the new alert
+        const notificationArea = document.getElementById('notification-area');
+        notificationArea.innerHTML = notification;
+
+        // Get the alert element
+        const alertElement = notificationArea.querySelector('.alert');
+
+        // Create a new Alert instance
+        const alert = new bootstrap.Alert(alertElement);
+
         // Auto-dismiss after 5 seconds
         setTimeout(() => {
-            $('.alert').alert('close');
+            if (document.body.contains(alertElement)) {
+                alert.close();
+            }
         }, 5000);
     }
 

@@ -171,26 +171,29 @@
 
     <!-- Docker Settings -->
     <div class="tab-pane fade" id="docker" role="tabpanel" aria-labelledby="docker-tab">
-        <h2>Docker Settings</h2>
-        <table class="table">
+        <h2 class="section-title mb-4">Docker Settings</h2>
+        <table class="table" id="docker-settings-table">
             <thead>
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">URL</th>
-                    <th scope="col">IP</th>
+                    <th>Host IP</th>
+                    <th>Socket URL</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for socket in sockets %}
-                <tr>
-                    <th scope="row">{{ socket.id }}</th>
-                    <td>{{ socket.ip_address }}</td>
-                    <td>{{ socket.docker_url }}</td>
-                </tr>
-                {% endfor %}
+                <!-- Existing rows will be populated here -->
             </tbody>
+            <tfoot>
+                <tr id="docker-add-row">
+                    <td><input type="text" class="form-control" id="new-docker-host-ip" placeholder="Enter Host IP">
+                    </td>
+                    <td><input type="text" class="form-control" id="new-docker-socket-url"
+                            placeholder="Enter Socket URL"></td>
+                    <td><button class="btn btn-success" id="docker-add-btn">Add</button></td>
+                </tr>
+            </tfoot>
         </table>
-        <button id="discover-docker-ports" class="btn btn-info">Discover Docker Ports</button>
+        <button id="discover-docker-ports" class="btn btn-primary mt-3">Discover Docker Ports</button>
     </div>
 
     <!-- Data Management -->
