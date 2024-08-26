@@ -143,13 +143,14 @@ def docker_settings():
             # Extract Docker settings from form data
             Docker_Socket = {
                 'docker_ip': request.form.get('docker_ip', '127.0.0.1'),
-                'docker_url': request.form.get('docker_url', 'unix://var/run/docker.sock')
+                'docker_url': request.form.get('docker_url', 'unix://var/run/docker.sock'),
+                'docker_interval': request.form.get('docker_interval', "86400")
             }
 
             app.logger.debug(f"Received Docker Socket: {Docker_Socket}")
 
             # Create Docker settings in the database
-            DockerSocket = Sockets(ip_address=Docker_Socket['docker_ip'], docker_url=Docker_Socket['docker_url'])
+            DockerSocket = Sockets(ip_address=Docker_Socket['docker_ip'], docker_url=Docker_Socket['docker_url'], docker_interval=Docker_Socket['docker_interval'])
             db.session.add(DockerSocket)
                            
             db.session.commit()
