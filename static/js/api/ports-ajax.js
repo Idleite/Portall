@@ -1,18 +1,21 @@
 // js/api/ports-ajax.js
 
 import { showNotification } from '../ui/helpers.js';
-import { cancelDrop } from '../utils/dragDropUtils.js';
+import { copyToClipboard } from '../core/new.js';
 
 /**
  * Move a port from one IP address to another.
- * Sends an AJAX request to move the port and updates the port order.
+ *
+ * This function sends an AJAX request to move a port between IP addresses and updates the port order.
+ * It logs the attempt, processes the server response, and calls appropriate callbacks based on the result.
  *
  * @param {number} portNumber - The port number being moved
  * @param {string} sourceIp - The source IP address
  * @param {string} targetIp - The target IP address
  * @param {string} protocol - The protocol of the port (TCP or UDP)
- * @param {function} successCallback - Function to call on successful move
+ * @param {function} successCallback - Function to call on successful move, receives updated port data
  * @param {function} errorCallback - Function to call on move error
+ * @throws {Error} Throws an error if the AJAX request fails
  */
 export function movePort(portNumber, sourceIp, targetIp, protocol, successCallback, errorCallback) {
     console.log(`Attempting to move port: ${portNumber} (${protocol}) from ${sourceIp} to ${targetIp}`);
@@ -50,9 +53,15 @@ export function movePort(portNumber, sourceIp, targetIp, protocol, successCallba
 
 /**
  * Edit an IP address.
- * Sends an AJAX request to update the IP address and updates the DOM.
+ *
+ * This function sends an AJAX request to update an IP address and updates the DOM accordingly.
+ * It handles both the server communication and the UI updates for editing an IP address.
  *
  * @param {Object} formData - The form data containing the IP address information
+ * @param {string} formData.old_ip - The original IP address being edited
+ * @param {string} formData.new_ip - The new IP address
+ * @param {string} formData.nickname - The nickname for the IP address (optional)
+ * @throws {Error} Throws an error if the AJAX request fails
  */
 export function editIp(formData) {
     $.ajax({
@@ -89,9 +98,12 @@ export function editIp(formData) {
 
 /**
  * Delete an IP address.
- * Sends an AJAX request to delete the IP address and removes it from the DOM.
+ *
+ * This function sends an AJAX request to delete an IP address and removes it from the DOM.
+ * It handles both the server communication and the UI updates for deleting an IP address.
  *
  * @param {string} ip - The IP address to delete
+ * @throws {Error} Throws an error if the AJAX request fails
  */
 export function deleteIp(ip) {
     $.ajax({
@@ -117,9 +129,16 @@ export function deleteIp(ip) {
 
 /**
  * Edit a port's details.
- * Sends an AJAX request to update the port information and updates the DOM.
+ *
+ * This function sends an AJAX request to update port information and updates the DOM.
+ * It handles both the server communication and the UI updates for editing a port.
  *
  * @param {Object} formData - The form data containing the port information
+ * @param {string} formData.ip - The IP address of the port
+ * @param {number} formData.old_port_number - The current port number
+ * @param {number} formData.new_port_number - The new port number
+ * @param {string} formData.description - The updated description for the port
+ * @throws {Error} Throws an error if the AJAX request fails
  */
 export function editPort(formData) {
     $.ajax({
@@ -156,9 +175,16 @@ export function editPort(formData) {
 
 /**
  * Add a new port.
- * Sends an AJAX request to add a port and reloads the page on success.
+ *
+ * This function sends an AJAX request to add a new port and reloads the page on success.
+ * It handles the server communication for adding a new port to an IP address.
  *
  * @param {Object} formData - The form data containing the new port information
+ * @param {string} formData.ip - The IP address for the new port
+ * @param {number} formData.port_number - The new port number
+ * @param {string} formData.protocol - The protocol of the new port (TCP or UDP)
+ * @param {string} formData.description - The description for the new port
+ * @throws {Error} Throws an error if the AJAX request fails
  */
 export function addPort(formData) {
     $.ajax({
@@ -183,9 +209,13 @@ export function addPort(formData) {
 
 /**
  * Generates a new random port for an IP.
- * Sends an AJAX request to generate a port.
  *
- * @param {Object} formData - The form data containing the new port information
+ * This function sends an AJAX request to generate a new random port for a given IP address.
+ * It handles the server communication and updates the UI with the generated port information.
+ *
+ * @param {Object} formData - The form data containing the IP information
+ * @param {string} formData.ip - The IP address for which to generate a new port
+ * @throws {Error} Throws an error if the AJAX request fails
  */
 export function generatePort(formData) {
     // Send AJAX request to generate port
@@ -221,10 +251,13 @@ export function generatePort(formData) {
 
 /**
  * Delete a port.
- * Sends an AJAX request to delete a port and removes it from the DOM.
+ *
+ * This function sends an AJAX request to delete a specific port and removes it from the DOM.
+ * It handles both the server communication and the UI updates for deleting a port.
  *
  * @param {string} ip - The IP address of the port
  * @param {number} portNumber - The port number to delete
+ * @throws {Error} Throws an error if the AJAX request fails
  */
 export function deletePort(ip, portNumber) {
     $.ajax({
@@ -250,12 +283,15 @@ export function deletePort(ip, portNumber) {
 
 /**
  * Change the port number.
- * Sends an AJAX request to change the port number and executes a callback on success.
+ *
+ * This function sends an AJAX request to change a port number and executes a callback on success.
+ * It handles the server communication for updating a port number for a given IP address.
  *
  * @param {string} ip - The IP address of the port
  * @param {number} oldPortNumber - The current port number
  * @param {number} newPortNumber - The new port number
- * @param {function} callback - The callback function to execute on success
+ * @param {function} callback - The callback function to execute on successful port number change
+ * @throws {Error} Throws an error if the AJAX request fails
  */
 export function changePortNumber(ip, oldPortNumber, newPortNumber, callback) {
     $.ajax({
@@ -282,7 +318,11 @@ export function changePortNumber(ip, oldPortNumber, newPortNumber, callback) {
 
 /**
  * Export all entries as a JSON file.
- * Sends a GET request to fetch the export data and triggers a download.
+ *
+ * This function sends a GET request to fetch the export data and triggers a download of the resulting JSON file.
+ * It handles the server communication, file naming, and initiating the download process.
+ *
+ * @throws {Error} Throws an error if the fetch request fails or if there's an issue with the file download
  */
 export function exportEntries() {
     fetch('/export_entries', {
@@ -323,10 +363,13 @@ export function exportEntries() {
 
 /**
  * Update the order of ports for a specific IP address.
- * Sends an AJAX request to update the port order on the server.
+ *
+ * This function sends an AJAX request to update the port order on the server for a given IP address.
+ * It handles the server communication for reordering ports and provides feedback on the operation's success.
  *
  * @param {string} ip - The IP address for which to update the port order
  * @param {Array<number>} portOrder - An array of port numbers in the new order
+ * @throws {Error} Throws an error if the AJAX request fails
  */
 export function updatePortOrder(ip, portOrder) {
     $.ajax({
@@ -352,6 +395,16 @@ export function updatePortOrder(ip, portOrder) {
     });
 }
 
+/**
+ * Purge all entries from the database.
+ *
+ * This function sends an AJAX request to delete all entries from the database.
+ * It handles the server communication for the purge operation, provides feedback,
+ * and closes the confirmation modal upon successful completion.
+ *
+ * @param {HTMLElement} confirmModalElement - The DOM element of the confirmation modal
+ * @throws {Error} Throws an error if the AJAX request fails
+ */
 export function purgeEntries(confirmModalElement) {
     $.ajax({
         url: '/purge_entries',
@@ -367,4 +420,3 @@ export function purgeEntries(confirmModalElement) {
         }
     });
 }
-

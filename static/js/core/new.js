@@ -12,7 +12,11 @@ import { generatePort } from '../api/ports-ajax.js';
 $(document).ready(function () {
     console.log('Document ready');
     const ipSelect = $('#ip-address');
-    const newIpModal = new bootstrap.Modal(document.getElementById('newIpModal'));
+
+    const modalElement = document.getElementById('newIpModal');
+    if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        newIpModal = new bootstrap.Modal(modalElement);
+    }
 
     /**
      * Event handler for the "Add IP" button.
@@ -111,7 +115,7 @@ function getCopyFormat() {
  * Uses the Clipboard API if available, otherwise falls back to a manual method.
  * @param {string} url - The URL to copy to the clipboard.
  */
-function copyToClipboard(url) {
+export function copyToClipboard(url) {
     getCopyFormat().then(format => {
         let textToCopy;
         if (format === 'port_only') {
