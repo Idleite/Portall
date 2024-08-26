@@ -396,6 +396,26 @@ export function updatePortOrder(ip, portOrder) {
 }
 
 /**
+ * Get the copy format setting from the server.
+ * @returns {Promise<string>} A promise that resolves to either 'port_only' or 'full_url'.
+ */
+export function getCopyFormat() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: '/port_settings',
+            method: 'GET',
+            success: function (data) {
+                resolve(data.copy_format || 'port_only');   // Default to 'port_only' if not set
+            },
+            error: function (xhr, status, error) {
+                console.error('Error getting copy format:', status, error);
+                reject(error);
+            }
+        });
+    });
+}
+
+/**
  * Purge all entries from the database.
  *
  * This function sends an AJAX request to delete all entries from the database.

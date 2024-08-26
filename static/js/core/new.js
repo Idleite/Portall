@@ -7,7 +7,7 @@
  */
 
 import { showNotification } from '../ui/helpers.js';
-import { generatePort } from '../api/ports-ajax.js';
+import { generatePort, getCopyFormat } from '../api/ports-ajax.js';
 
 $(document).ready(function () {
     console.log('Document ready');
@@ -91,23 +91,6 @@ function isValidIpAddress(ip) {
         return parts.every(part => parseInt(part) >= 0 && parseInt(part) <= 255);
     }
     return false;
-}
-
-// Port Only or Full URL Copy Format
-function getCopyFormat() {
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: '/port_settings',
-            method: 'GET',
-            success: function (data) {
-                resolve(data.copy_format || 'port_only');   // Default to 'port_only' if not set
-            },
-            error: function (xhr, status, error) {
-                console.error('Error getting copy format:', status, error);
-                reject(error);
-            }
-        });
-    });
 }
 
 /**
