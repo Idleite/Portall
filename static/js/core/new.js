@@ -7,12 +7,16 @@
  */
 
 import { showNotification } from '../ui/helpers.js';
-import { generatePort } from '../api/ajax.js';
+import { generatePort, getCopyFormat } from '../api/ports-ajax.js';
 
 $(document).ready(function () {
     console.log('Document ready');
     const ipSelect = $('#ip-address');
-    const newIpModal = new bootstrap.Modal(document.getElementById('newIpModal'));
+
+    const modalElement = document.getElementById('newIpModal');
+    if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        newIpModal = new bootstrap.Modal(modalElement);
+    }
 
     /**
      * Event handler for the "Add IP" button.
@@ -89,29 +93,12 @@ function isValidIpAddress(ip) {
     return false;
 }
 
-// Port Only or Full URL Copy Format
-function getCopyFormat() {
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: '/port_settings',
-            method: 'GET',
-            success: function (data) {
-                resolve(data.copy_format || 'port_only');   // Default to 'port_only' if not set
-            },
-            error: function (xhr, status, error) {
-                console.error('Error getting copy format:', status, error);
-                reject(error);
-            }
-        });
-    });
-}
-
 /**
  * Copies the given URL to the clipboard.
  * Uses the Clipboard API if available, otherwise falls back to a manual method.
  * @param {string} url - The URL to copy to the clipboard.
  */
-function copyToClipboard(url) {
+export function copyToClipboard(url) {
     getCopyFormat().then(format => {
         let textToCopy;
         if (format === 'port_only') {

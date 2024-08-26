@@ -30,16 +30,24 @@
             aria-controls="data" aria-selected="false">Data Management</button>
     </li>
 
+    <!-- PLugins -->
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="plugins-tab" data-bs-toggle="tab" data-bs-target="#plugins" type="button"
+            role="tab" aria-controls="plugins" aria-selected="false">Plugins</button>
+    </li>
+
+    <!-- Docker Socket -->
+    <li class="nav-item docker-tab hidden" role="presentation">
+        <button class="nav-link" id="docker-tab" data-bs-toggle="tab" data-bs-target="#docker" type="button" role="tab"
+            aria-controls="Docker" aria-selected="false">Docker</button>
+    </li>
+
     <!-- About -->
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="about-tab" data-bs-toggle="tab" data-bs-target="#about" type="button" role="tab"
             aria-controls="about" aria-selected="false">About</button>
     </li>
-    <!-- Docker Socket -->
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="Docker-tab" data-bs-toggle="tab" data-bs-target="#docker" type="button" role="tab"
-            aria-controls="Docker" aria-selected="false">Docker</button>
-    </li>
+
 </ul>
 
 <!-- Pages -->
@@ -160,39 +168,32 @@
             <button type="submit" class="btn btn-primary">Save</button>
         </form>
     </div>
+
     <!-- Docker Settings -->
-    <div class="tab-pane fade show active" id="docker" role="tabpanel" aria-labelledby="docker-tab">
-        <h2>Docker Settings</h2>
-        <table class="table">
+    <div class="tab-pane fade" id="docker" role="tabpanel" aria-labelledby="docker-tab">
+        <h2 class="section-title mb-4">Docker Settings</h2>
+        <table class="table" id="docker-settings-table">
             <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">URL</th>
-                <th scope="col">IP</th>
-              </tr>
+                <tr>
+                    <th>Host IP</th>
+                    <th>Socket URL</th>
+                    <th>Actions</th>
+                </tr>
             </thead>
             <tbody>
-            {% for socket in sockets %}
-            <tr>
-                <th scope="row">{{ socket.id }}</th>
-                <td>{{ socket.ip_address }}</td>
-                <td>{{ socket.docker_url }}</td>
-              </tr>
-            {% endfor %}
+                <!-- Existing rows will be populated here -->
             </tbody>
+            <tfoot>
+                <tr id="docker-add-row">
+                    <td><input type="text" class="form-control" id="new-docker-host-ip" placeholder="Enter Host IP">
+                    </td>
+                    <td><input type="text" class="form-control" id="new-docker-socket-url"
+                            placeholder="Enter Socket URL"></td>
+                    <td><button class="btn btn-success" id="docker-add-btn">Add</button></td>
+                </tr>
+            </tfoot>
         </table>
-
-        <form action="/docker_settings" id="docker-form">
-            <div class="mb-3">
-                <label for="docker-ip" class="form-label">Docker Host IP</label>
-                <input type="text" class="form-control" id="docker-ip" name="docker_ip">
-            </div>
-            <div class="mb-3">
-                <label for="docker-url" class="form-label">Docker Socket URL</label>
-                <input type="text" class="form-control" id="docker-url" name="docker_url">
-            </div>
-            <button type="submit" class="btn btn-primary">Save</button>
-        </form>
+        <button id="discover-docker-ports" class="btn btn-primary mt-3">Discover Docker Ports</button>
     </div>
 
     <!-- Data Management -->
@@ -211,6 +212,80 @@
             <h3>Purge Data</h3>
             <p>Purge all entries from the database. This action cannot be undone.</p>
             <button id="purge-button" class="btn btn-danger">Purge All Entries</button>
+        </div>
+    </div>
+
+    <!-- Plugin Settings -->
+    <div class="tab-pane fade" id="plugins" role="tabpanel" aria-labelledby="plugins-tab">
+        <h2 class="section-title mb-4">Plugins</h2>
+        <!-- Enabled Plugins -->
+        <div class="info-card mb-4">
+            <div class="card-content">
+                <h3 class="card-title">Enabled Plugins</h3>
+                <div id="enabled-plugins" class="mb-3">
+                    <!-- Enabled plugins will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+        <!-- Docker -->
+        <div class="info-card mb-4">
+            <div class="card-content">
+                <h3 id="docker" class="card-title">Docker</h3>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="docker-enabled" name="docker_enabled" disabled>
+                    <label class="form-check-label" for="docker-enabled" data-bs-toggle="tooltip"
+                        data-bs-placement="right"
+                        title="Please configure Docker first before enabling it.">Enabled</label>
+                </div>
+                <div class="mb-3">
+                    <label for="docker-host-ip" class="form-label">Host IP</label>
+                    <input type="text" class="form-control" id="docker-host-ip" name="docker_host_ip"
+                        placeholder="'localhost' or remote host IP">
+                </div>
+                <div class="mb-3">
+                    <label for="docker-socket-url" class="form-label">Socket URL</label>
+                    <div class="mb-3">
+                        <p class="form-label">
+                            Linux:<br>
+                            unix:///var/run/docker.sock<br><br>
+                            Windows:<br>
+                            npipe:////./pipe/docker_engine
+                        </p>
+                        <input type="text" class="form-control" id="docker-socket-url" name="docker_socket_url"
+                            placeholder="unix:///var/run/docker.sock">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="save-docker-settings">Save Docker
+                        Settings</button>
+                    <button type="button" class="btn btn-secondary" id="test-docker-connection">Test Connection</button>
+                </div>
+            </div>
+            <!-- Portainer -->
+            <div class="info-card mb-4">
+                <div class="card-content">
+                    <h3 id="portainer" class="card-title">Portainer</h3>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="portainer-enabled" name="portainer_enabled"
+                            disabled>
+                        <label class="form-check-label" for="portainer-enabled" data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="Please configure Portainer first before enabling it.">Enabled</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="portainer-url" class="form-label">URL</label>
+                        <input type="text" class="form-control" id="portainer-url" name="portainer_url"
+                            placeholder="http://localhost:9443">
+                    </div>
+                    <div class="mb-3">
+                        <label for="portainer-token" class="form-label">Access Token</label>
+                        <input type="password" class="form-control" id="portainer-token" name="portainer_token"
+                            placeholder="ptr_cBqeD5bb/25LxELr155bmA9tdknSxTwwBCr9fQWyGc=">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="save-portainer-settings">Save Portainer
+                        Settings</button>
+                    <button type="button" class="btn btn-secondary" id="test-portainer-connection">Test
+                        Connection</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -245,28 +320,26 @@
         </div>
     </div>
 
-</div>
-
-<!-- Confirmation Modal -->
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmModalLabel">Confirm Purge</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to purge all entries? This action cannot be undone.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirm-purge">Purge</button>
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirm Purge</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to purge all entries? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirm-purge">Purge</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}
 
-{% block scripts %}
-<script type="module" src="{{ url_for('static', filename='js/core/settings.js') }}"></script>
-{% endblock %}
+    {% block scripts %}
+    <script type="module" src="{{ url_for('static', filename='js/core/settings.js') }}"></script>
+    {% endblock %}

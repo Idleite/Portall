@@ -126,13 +126,11 @@ hr {
     background-color: var(--bg-color-secondary);
 }
 
-.table thead th {
-    border-bottom: 2px solid var(--text-color-secondary);
-}
+.table thead th {}
 
 .table td,
 .table th {
-    border-top: 1px solid var(--text-color-secondary);
+    box-shadow: 0px 5px 4px #0000001c;
 }
 
 /* Cards */
@@ -337,4 +335,8 @@ code {
 
 .show-more:hover {
     color: var(--color-blue-dark);
+}
+
+.enabled-plugin {
+    background-color: var(--color-blue-lighter);
 }

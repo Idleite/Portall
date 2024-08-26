@@ -2,7 +2,7 @@
 
 import { showNotification } from '../ui/helpers.js';
 import { editPortModal, addPortModal, deletePortModal } from '../ui/modals.js';
-import { updatePortOrder as updatePortOrderAjax } from '../api/ajax.js';
+import { updatePortOrder as updatePortOrderAjax } from '../api/ports-ajax.js';
 
 /**
  * The IP address of the port to be deleted.
